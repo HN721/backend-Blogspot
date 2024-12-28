@@ -4,6 +4,7 @@ const express = require("express");
 const connectDB = require("./utils/connectDB");
 const postRouter = require("./router/post/postsRouter");
 const router = require("./router/users/usersRoute");
+const passport = require("./utils/passport-config");
 //call the db
 connectDB();
 const app = express();
@@ -18,6 +19,8 @@ const corsOptions = {
   credentials: true,
 };
 app.use(corse(corsOptions));
+//Passport Middleware
+app.use(passport.initialize());
 //!---Route handlers
 app.use("/api/v1", postRouter);
 app.use("/api/v1/users", router);

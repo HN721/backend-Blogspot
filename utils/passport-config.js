@@ -1,7 +1,7 @@
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
 const User = require("../models/User/User");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 passport.use(
   new localStrategy(
     {
@@ -17,7 +17,7 @@ passport.use(
         if (match) {
           return done(null, user);
         } else {
-          return done(null, false, { message: "Incorrect password" });
+          return done(null, false, { message: "Invalid Login" });
         }
       } catch (err) {
         return done(err);
