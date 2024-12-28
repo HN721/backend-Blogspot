@@ -31,11 +31,24 @@ const userController = {
     passport.authenticate("local", (err, user, info) => {
       if (err) return next(err);
       if (!user) {
-        return res.status(401).json({ message: info });
+        return res.status(401).json({ message: info.message });
       }
       //generate token
       const token = jwt.sign({ id: user?.i_id }, process.env.JWT_SECRET);
-      console.log(token);
+      //set to the cokkie
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: 24 * 60 * 60 * 1000, // 1day
+      });
+      res.json({
+        status: "success",
+        message: "User logged in successfully",
+        username: user?.username,
+        email: user?.email,
+        _id: user?._id,
+      });
     })(req, res, next);
   }),
   //Profile
