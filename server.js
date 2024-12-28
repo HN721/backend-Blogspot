@@ -3,6 +3,7 @@ const corse = require("cors");
 const express = require("express");
 const connectDB = require("./utils/connectDB");
 const postRouter = require("./router/post/postsRouter");
+const router = require("./router/users/usersRoute");
 //call the db
 connectDB();
 const app = express();
@@ -19,6 +20,7 @@ const corsOptions = {
 app.use(corse(corsOptions));
 //!---Route handlers
 app.use("/api/v1", postRouter);
+app.use("/api/v1/users", router);
 
 //!Not found
 app.use((req, res, next) => {
