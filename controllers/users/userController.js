@@ -51,7 +51,37 @@ const userController = {
       });
     })(req, res, next);
   }),
-  //Profile
+  //Google OAuth
+  googleAuth: passport.authenticate("google", { scope: ["profile"] }),
+  // Google Callback
+  googleAuthCallback: asyncHandler(async (req, res, next) => {
+    passport.authenticate(
+      "google",
+      {
+        failureRedirect: "/login",
+        session: false,
+      },
+      (err, user, info) => {
+        if (err) return next(err);
+        if (!user) {
+          return res.redirect("http://localhost:5173/google-login-error");
+        }
+        //generate token
+        const token = jwt.sign({ id: user?._id }, process.env.JWT_SECRET, {
+          expiresIn: "1h",
+        });
+        //set token to cokie
+        res.cookie("token", token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+          maxAge: 24 * 60 * 60 * 1000, // 1 Day
+        });
+        //redicrt user to user dahsboard
+        res.redirect("http://localhost:5173/dashboard");
+      }
+    )(req, res, next);
+  }),
 };
 
 module.exports = userController;

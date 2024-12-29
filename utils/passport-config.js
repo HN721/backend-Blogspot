@@ -57,5 +57,41 @@ passport.use(
     }
   })
 );
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:5000/api/v1/users/auth/google/callback",
+    },
+    async (acessToken, refreshToken, profile, done) => {
+      try {
+        let user = await User.findOne({ googleId: profile.id });
+        const {
+          id,
+          displayName,
+          name,
+          _json: { picture },
+        } = profile;
 
+        let email = "";
+        if (Array.isArray(profile?.emails) && profile?.emails.length > 0) {
+          email = profile.emails[0].value;
+        }
+        if (!user) {
+          user = await User.create({
+            username: displayName,
+            googleId: id,
+            profilePicture: picture,
+            authMethod: "google",
+            email,
+          });
+        }
+        done(null, user);
+      } catch (err) {
+        done(err, null);
+      }
+    }
+  )
+);
 module.exports = passport;
