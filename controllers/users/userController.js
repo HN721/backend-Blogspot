@@ -82,6 +82,29 @@ const userController = {
       }
     )(req, res, next);
   }),
+  checkAuthenticated: asyncHandler(async (req, res) => {
+    const token = req.cookies["token"];
+    if (!token) {
+      res.status(401).json({ isAuthenticated: false });
+    }
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      //find user
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        res.status(401).json({ isAuthenticated: false });
+      } else {
+        return res.status(200).json({
+          isAuthenticated: true,
+          _id: user?._id,
+          username: user?.username,
+          profilePicture: user?.profilePicture,
+        });
+      }
+    } catch (err) {
+      return res.status(401).json({ isAuthenticated: false, err });
+    }
+  }),
 };
 
 module.exports = userController;

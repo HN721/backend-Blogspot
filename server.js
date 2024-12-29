@@ -3,6 +3,7 @@ const corse = require("cors");
 const express = require("express");
 const connectDB = require("./utils/connectDB");
 const postRouter = require("./router/post/postsRouter");
+const cookieParser = require("cookie-parser");
 const router = require("./router/users/usersRoute");
 const passport = require("./utils/passport-config");
 //call the db
@@ -21,6 +22,7 @@ const corsOptions = {
 app.use(corse(corsOptions));
 //Passport Middleware
 app.use(passport.initialize());
+app.use(cookieParser());
 //!---Route handlers
 app.use("/api/v1", postRouter);
 app.use("/api/v1/users", router);
