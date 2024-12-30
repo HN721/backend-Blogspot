@@ -3,7 +3,6 @@ const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
-const { loadConfigFromFile } = require("vite");
 const userController = {
   // Register
   register: asyncHandler(async (req, res) => {
@@ -35,7 +34,7 @@ const userController = {
         return res.status(401).json({ message: info.message });
       }
       //generate token
-      const token = jwt.sign({ id: user?.i_id }, process.env.JWT_SECRET);
+      const token = jwt.sign({ id: user?._id }, process.env.JWT_SECRET);
       //set to the cokkie
       res.cookie("token", token, {
         httpOnly: true,
@@ -86,14 +85,18 @@ const userController = {
   checkAuthenticated: asyncHandler(async (req, res) => {
     const token = req.cookies["token"];
     if (!token) {
-      return res.status(401).json({ isAuthenticated: false });
+      return res
+        .status(401)
+        .json({ isAuthenticated: false, message: "Not token" });
     }
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       //find the user
       const user = await User.findById(decoded.id);
       if (!user) {
-        return res.status(401).json({ isAuthenticated: false });
+        return res
+          .status(401)
+          .json({ isAuthenticated: false, message: "User not found" });
       } else {
         return res.status(200).json({
           isAuthenticated: true,
