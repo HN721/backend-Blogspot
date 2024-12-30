@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 const bcrypt = require("bcryptjs");
+const { loadConfigFromFile } = require("vite");
 const userController = {
   // Register
   register: asyncHandler(async (req, res) => {
@@ -78,21 +79,21 @@ const userController = {
           maxAge: 24 * 60 * 60 * 1000, // 1 Day
         });
         //redicrt user to user dahsboard
-        res.redirect("http://localhost:5173/dashboard");
+        res.redirect("http://localhost:5173/profile");
       }
     )(req, res, next);
   }),
   checkAuthenticated: asyncHandler(async (req, res) => {
     const token = req.cookies["token"];
     if (!token) {
-      res.status(401).json({ isAuthenticated: false });
+      return res.status(401).json({ isAuthenticated: false });
     }
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      //find user
+      //find the user
       const user = await User.findById(decoded.id);
       if (!user) {
-        res.status(401).json({ isAuthenticated: false });
+        return res.status(401).json({ isAuthenticated: false });
       } else {
         return res.status(200).json({
           isAuthenticated: true,
@@ -101,9 +102,13 @@ const userController = {
           profilePicture: user?.profilePicture,
         });
       }
-    } catch (err) {
-      return res.status(401).json({ isAuthenticated: false, err });
-    }
+    } catch (error) {}
+    return res.status(401).json({ isAuthenticated: false, error });
+  }),
+  // ! Logout
+  logout: asyncHandler(async (req, res) => {
+    res.cookie("token", "", { maxAge: 1 });
+    res.status(200).json({ message: "Logout success" });
   }),
 };
 
