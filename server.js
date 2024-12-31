@@ -6,6 +6,7 @@ const postRouter = require("./router/post/postsRouter");
 const cookieParser = require("cookie-parser");
 const router = require("./router/users/usersRoute");
 const passport = require("./utils/passport-config");
+const categoryRouter = require("./router/category/categoryRouter");
 //call the db
 connectDB();
 const app = express();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 //!---Route handlers
 app.use("/api/v1", postRouter);
 app.use("/api/v1/users", router);
+app.use("/api/v1", categoryRouter);
 
 //!Not found
 app.use((req, res, next) => {
